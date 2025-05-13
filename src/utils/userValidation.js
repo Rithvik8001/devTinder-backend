@@ -53,6 +53,27 @@ const validateSignUpData = (req) => {
   }
 };
 
+const validateEditProfileData = (req) => {
+  const allowedEdits = [
+    "firstName",
+    "lastName",
+    "photoUrl",
+    "skills",
+    "about",
+    "age",
+    "gender",
+  ];
+
+  const isEditAllowed = Object.keys(req.body).every((feild) =>
+    allowedEdits.includes(feild)
+  );
+  if (!isEditAllowed) {
+    throw new Error("Cannot edit this feild");
+  }
+  return isEditAllowed;
+};
+
 module.exports = {
   validateSignUpData,
+  validateEditProfileData,
 };

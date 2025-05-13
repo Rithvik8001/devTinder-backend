@@ -5,6 +5,7 @@ const userModel = require("../models/user");
 const bcrypt = require("bcrypt");
 require("dotenv").config();
 
+// signup Route
 authRouter.post("/signup", async (req, res) => {
   const {
     password,
@@ -34,11 +35,11 @@ authRouter.post("/signup", async (req, res) => {
     await user.save();
     res.status(201).send("User successfully created.");
   } catch (error) {
-    console.log(error);
     res.status(500).send(error.message);
   }
 });
 
+// Login route
 authRouter.post("/login", async (req, res) => {
   const { emailId, password } = req.body;
   try {
@@ -50,20 +51,23 @@ authRouter.post("/login", async (req, res) => {
     if (!user) {
       return res.status(404).send("User not found.");
     }
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-
+    const isPasswordValid = await user.validatePassword(password);
     if (isPasswordValid) {
       // JWT Token.
       const token = await user.getJwtToken();
-      res.cookie("token", token);
-      return res.send("User is successfully logged in.");
+      res.cookie("token", token).json("User is successfully logged in.");
     } else {
       return res.status(401).send("Invalid credentials.");
     }
   } catch (error) {
-    console.error(error);
     res.status(500).send("An error occurred during login.");
   }
+});
+
+authRouter.post("/logout", async (req, res) => {
+  res
+    .cookie("token", "", { expires: new Date(Date.now()) })
+    .send("Logged Out Succesfull");
 });
 
 module.exports = {
